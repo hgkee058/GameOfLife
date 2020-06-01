@@ -1,0 +1,172 @@
+<style>
+body{
+    background-color: rgb(9,9,9);
+	color: white;
+    font-family: Segoe UI;
+}
+td{
+    border: 1px solid #b1b1b1;
+    padding: 10px;
+    margin: 0px;
+    background-color: white;
+}
+table{
+    border: 1px solid aqua;
+}
+button{
+    border: 1px solid rgb(102, 111, 160);
+    padding: 8px;
+    margin: 1px;
+	width: 100px;
+    font-size: 15px;
+    background-color: rgb(154, 69, 154);
+    color: white;
+}
+</style>
+
+<html>
+    <head>
+        <title>Game of life</title>
+    </head>
+    <body onload="Init()">
+        <center>
+            <h1>Game of Life</h1>
+                <button onclick="startGame()">Start</button>
+                <button onclick="pauseGame()">Pause</button>
+                <button onclick="nextState()">Next State</button>
+                <span id='game_status'>Game is paused</span>
+                <br><br>
+            <div id="field"></div>
+        </center>
+
+<script type='text/javascript'>
+
+const FIELD_SIZE = 24;
+var gameStarted = false;
+
+htmlField = document.getElementById('field');
+
+function DrawField(field) {
+    result = "<table>";
+    for(var i = 0; i < FIELD_SIZE; i++){
+        result += "<tr>";
+        for(var j = 0; j < FIELD_SIZE; j++){
+            if(field[i][j] == 0){
+                result += "<td onclick='ToggleCell("+ i.toString() + "," + j.toString() +");'></td>";
+            }
+            else{
+                result += "<td onclick='ToggleCell("+ i.toString() + "," + j.toString() +");' style='background-color: green;'></td>";
+            }
+        }
+        result += "</tr>";
+    }
+    result += "</table>";
+    htmlField.innerHTML = result;
+}
+
+function GetEmptyField(size){
+	field = []
+    for(var i = 0; i < size; i++){
+        field.push([]);
+        for(var j = 0; j < size; j++){
+            field[i][j] = 0;
+        }
+    }
+	return field;
+}
+
+function Init()
+{
+    currentField = GetEmptyField(FIELD_SIZE);
+    DrawField(currentField);
+}
+
+function startGame(){
+    gameStarted = true;
+    document.getElementById('game_status').innerHTML = "";
+    setTimeout(startGameLoop, 450);
+}
+function startGameLoop(){
+    if(gameStarted){
+        nextState();
+        setTimeout(startGameLoop, 450);
+    }
+}
+function pauseGame(){
+    document.getElementById('game_status').innerHTML = "Game paused";
+    gameStarted = false;
+}
+
+function GetNeighbors(i, j){
+    var sum = 0;
+    if(i != 0 && j != 0){
+        sum += currentField[i - 1][j - 1];
+    }
+    if(i != 0){
+        sum += currentField[i - 1][j];
+    }
+    if(i != 0 && j != FIELD_SIZE - 1){
+        sum += currentField[i - 1][j + 1];
+    }
+    if(j != 0){
+    sum += currentField[i][j - 1];
+    }
+    //sum += currentField[i][j];
+    if(j != FIELD_SIZE - 1){
+        sum += currentField[i][j + 1];
+    }
+    if(i != FIELD_SIZE - 1 && j != 0){
+        sum += currentField[i + 1][j - 1];
+    }
+    if(i != FIELD_SIZE - 1){
+        sum += currentField[i + 1][j];
+    }
+    if(i != FIELD_SIZE - 1 && j != FIELD_SIZE - 1){
+        sum += currentField[i + 1][j + 1];
+    }
+
+    return sum;
+}
+
+function nextState(){
+    newField = [];
+	
+    for(var i = 0; i < FIELD_SIZE; i++){
+        newField.push([]);
+        for(var j = 0; j < FIELD_SIZE; j++){
+            newField[i][j] = 0;
+        }
+    }
+
+    for(var i = 0; i < FIELD_SIZE; i++){
+        for(var j = 0; j < FIELD_SIZE; j++){
+            neighbors = GetNeighbors(i, j);
+            if(currentField[i][j] == 1){
+                if(neighbors < 2){ newField[i][j] = 0; }
+                if(neighbors == 2 || neighbors == 3){ newField[i][j] = 1; }
+                if(neighbors > 3){ newField[i][j] = 0; }
+            }
+            else{
+                if(neighbors == 3){
+                    newField[i][j] = 1;
+                }
+            }
+        }
+    }
+    currentField = newField;
+    DrawField(currentField);
+}
+
+function ToggleCell(i, j){
+    if(currentField[i][j] == 0){
+        currentField[i][j] = 1;
+    }
+    else{
+        currentField[i][j] = 0;
+    }
+    DrawField(currentField);
+}
+
+</script>
+    </body>
+</html>
